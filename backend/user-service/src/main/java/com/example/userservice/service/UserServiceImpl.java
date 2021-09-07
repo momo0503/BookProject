@@ -148,4 +148,29 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteByUserId(userId);
 
     }
+
+    @Override
+    public UserDto updateByUserId(UserDto userDto, UserDto userDetails) {
+
+        UserEntity userEntity = userRepository.findByUserId(userDto.getUserId());
+        ModelMapper mapper = new ModelMapper();
+        UserDto userUpdateDto = mapper.map(userEntity, UserDto.class);
+
+        userUpdateDto.setName(userDetails.getName());
+        userUpdateDto.setPwd(userDetails.getPwd());
+
+        ModelMapper usermapper = new ModelMapper();
+        usermapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        UserEntity userUpdateEntity = usermapper.map(userUpdateDto, UserEntity.class);
+
+        userUpdateEntity.setId(userEntity.getId());
+        userUpdateEntity.setEncryptedPwd(bCryptPasswordEncoder.encode(userUpdateDto.getPwd()));
+
+        userRepository.save(userUpdateEntity);
+
+        return null;
+    }
+
+
+
 }
